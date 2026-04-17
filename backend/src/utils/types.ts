@@ -10,4 +10,7 @@ export const TYPES = {
     // Controllers
     AuthController: Symbol.for("AuthController"),
     TaskController: Symbol.for("TaskController"),
+    
+    OtpRepository: Symbol.for("OtpRepository"),
+
 };

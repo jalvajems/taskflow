@@ -4,7 +4,7 @@ export interface TaskResponseDto {
     id: string;
     title: string;
     description: string;
-    status: Status.PENDING | Status.COMPLETED;
+    status: "pending" | "completed";
     dueDate: Date;
     createdAt: Date;
 }

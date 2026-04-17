@@ -9,6 +9,10 @@ import { TaskRepository } from "../repositories/implementations/TaskRepository";
 import { TYPES } from "../utils/types";
 import { IAuthService } from "../services/interfaces/IAuthService";
 import { AuthService } from "../services/implementations/AuthService";
+import { IOtpRepository } from "../repositories/interfaces/IOtpRepository";
+import { OtpRepository } from "../repositories/implementations/OtpRepository";
+import { IAuthController } from "../controllers/interfaces/IAuthController";
+import { AuthController } from "../controllers/implementations/AuthController";
 
 const container = new Container();
 
@@ -16,6 +20,9 @@ const container = new Container();
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository).inSingletonScope();
 container.bind<ITaskRepository>(TYPES.TaskRepository).to(TaskRepository).inSingletonScope();
 container.bind<IAuthService>(TYPES.AuthService).to(AuthService).inSingletonScope();
+container.bind<IOtpRepository>(TYPES.OtpRepository).to(OtpRepository).inSingletonScope();
+container.bind<IAuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();
+
 
 // (We will add Services and Controllers here as we build them)
 
