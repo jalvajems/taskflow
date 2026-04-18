@@ -8,7 +8,7 @@ import { ITaskController } from '../interfaces/ITaskController';
 export class TaskController implements ITaskController {
     constructor(
         @inject(TYPES.TaskService) private taskService: ITaskService
-    ) {}
+    ) { }
 
     async createTask(req: Request, res: Response): Promise<void> {
         try {
@@ -22,7 +22,7 @@ export class TaskController implements ITaskController {
 
     async getTasks(req: Request, res: Response): Promise<void> {
         try {
-            const { userId } = req.params; // Or from auth middleware
+            const userId = req.params.userId as string;
             const tasks = await this.taskService.getTasksByUser(userId);
             res.status(200).json(tasks);
         } catch (error: any) {
@@ -32,7 +32,8 @@ export class TaskController implements ITaskController {
 
     async updateTask(req: Request, res: Response): Promise<void> {
         try {
-            const task = await this.taskService.updateTask(req.params.id, req.body);
+            const id = req.params.id as string;
+            const task = await this.taskService.updateTask(id, req.body);
             res.status(200).json(task);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
@@ -41,7 +42,8 @@ export class TaskController implements ITaskController {
 
     async deleteTask(req: Request, res: Response): Promise<void> {
         try {
-            await this.taskService.deleteTask(req.params.id);
+            const id = req.params.id as string;
+            await this.taskService.deleteTask(id);
             res.status(200).json({ message: "Task deleted successfully" });
         } catch (error: any) {
             res.status(400).json({ message: error.message });
@@ -50,7 +52,7 @@ export class TaskController implements ITaskController {
 
     async getStats(req: Request, res: Response): Promise<void> {
         try {
-            const { userId } = req.params;
+            const userId = req.params.userId as string;
             const stats = await this.taskService.getTaskStats(userId);
             res.status(200).json(stats);
         } catch (error: any) {
