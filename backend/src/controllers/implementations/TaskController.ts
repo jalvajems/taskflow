@@ -1,0 +1,62 @@
+import { Request, Response } from 'express';
+import { injectable, inject } from 'inversify';
+import { TYPES } from '../../utils/types';
+import { ITaskService } from '../../services/interfaces/ITaskService';
+import { ITaskController } from '../interfaces/ITaskController';
+
+@injectable()
+export class TaskController implements ITaskController {
+    constructor(
+        @inject(TYPES.TaskService) private taskService: ITaskService
+    ) { }
+
+    async createTask(req: Request, res: Response): Promise<void> {
+        try {
+            // We'll get userId from the Auth Middleware later
+            const task = await this.taskService.createTask(req.body);
+            res.status(201).json(task);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async getTasks(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.params.userId as string;
+            const tasks = await this.taskService.getTasksByUser(userId);
+            res.status(200).json(tasks);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async updateTask(req: Request, res: Response): Promise<void> {
+        try {
+            const id = req.params.id as string;
+            const task = await this.taskService.updateTask(id, req.body);
+            res.status(200).json(task);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async deleteTask(req: Request, res: Response): Promise<void> {
+        try {
+            const id = req.params.id as string;
+            await this.taskService.deleteTask(id);
+            res.status(200).json({ message: "Task deleted successfully" });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+
+    async getStats(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.params.userId as string;
+            const stats = await this.taskService.getTaskStats(userId);
+            res.status(200).json(stats);
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+}
