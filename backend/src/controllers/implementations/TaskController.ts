@@ -3,6 +3,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../utils/types';
 import { ITaskService } from '../../services/interfaces/ITaskService';
 import { ITaskController } from '../interfaces/ITaskController';
+import { AuthRequest } from '../../middleware/authMiddleware';
 
 @injectable()
 export class TaskController implements ITaskController {
@@ -12,8 +13,14 @@ export class TaskController implements ITaskController {
 
     async createTask(req: Request, res: Response): Promise<void> {
         try {
-            // We'll get userId from the Auth Middleware later
-            const task = await this.taskService.createTask(req.body);
+            const authReq = req as AuthRequest;
+            const userId = authReq.user?.id;
+            if (!userId) {
+                res.status(401).json({ message: "Unauthorized" });
+                return;
+            }
+            const taskData = { ...req.body, userId };
+            const task = await this.taskService.createTask(taskData);
             res.status(201).json(task);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
@@ -22,7 +29,12 @@ export class TaskController implements ITaskController {
 
     async getTasks(req: Request, res: Response): Promise<void> {
         try {
-            const userId = req.params.userId as string;
+            const authReq = req as AuthRequest;
+            const userId = authReq.user?.id;
+            if (!userId) {
+                res.status(401).json({ message: "Unauthorized" });
+                return;
+            }
             const tasks = await this.taskService.getTasksByUser(userId);
             res.status(200).json(tasks);
         } catch (error: any) {
@@ -33,6 +45,8 @@ export class TaskController implements ITaskController {
     async updateTask(req: Request, res: Response): Promise<void> {
         try {
             const id = req.params.id as string;
+            // Additional auth check could be done to ensure this task belongs to userId
+            // but for now we follow simple logic
             const task = await this.taskService.updateTask(id, req.body);
             res.status(200).json(task);
         } catch (error: any) {
@@ -52,7 +66,12 @@ export class TaskController implements ITaskController {
 
     async getStats(req: Request, res: Response): Promise<void> {
         try {
-            const userId = req.params.userId as string;
+            const authReq = req as AuthRequest;
+            const userId = authReq.user?.id;
+            if (!userId) {
+                res.status(401).json({ message: "Unauthorized" });
+                return;
+            }
             const stats = await this.taskService.getTaskStats(userId);
             res.status(200).json(stats);
         } catch (error: any) {

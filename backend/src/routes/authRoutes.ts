@@ -2,14 +2,22 @@ import express from 'express';
 import { container } from '../config/inversify.config';
 import { TYPES } from '../utils/types';
 import { IAuthController } from '../controllers/interfaces/IAuthController';
+import { validate } from '../middleware/validate';
+import {
+    registerSchema,
+    loginSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema,
+    verifyOtpSchema
+} from '../utils/schemas';
 
 const router = express.Router();
 const authController = container.get<IAuthController>(TYPES.AuthController);
 
-router.post('/register', authController.register.bind(authController));
-router.post('/login', authController.login.bind(authController));
-router.post('/forgot-password', authController.forgotPassword.bind(authController));
-router.post('/verify-otp', authController.verifyOtp.bind(authController));
-router.post('/reset-password', authController.resetPassword.bind(authController));
+router.post('/register', validate(registerSchema), authController.register.bind(authController));
+router.post('/login', validate(loginSchema), authController.login.bind(authController));
+router.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword.bind(authController));
+router.post('/verify-otp', validate(verifyOtpSchema), authController.verifyOtp.bind(authController));
+router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword.bind(authController));
 
 export default router;
