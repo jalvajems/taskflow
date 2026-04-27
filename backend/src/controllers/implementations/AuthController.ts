@@ -22,8 +22,16 @@ export class AuthController implements IAuthController {
     async login(req: Request, res: Response): Promise<void> {
         try {
             const { email, password } = req.body;
-            const result = await this.authService.login(email, password);
-            res.status(200).json(result);
+            const { user, accessToken, refreshToken } = await this.authService.login(email, password);
+            
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            });
+
+            res.status(200).json({ user, accessToken });
         } catch (error: any) {
             res.status(401).json({ message: error.message });
         }
@@ -66,5 +74,24 @@ export class AuthController implements IAuthController {
         } catch (error: any) {
             res.status(400).json({ message: error.message });
         }
+    }
+
+    async refreshToken(req: Request, res: Response): Promise<void> {
+        try {
+            const token = req.cookies.refreshToken;
+            const result = await this.authService.refreshToken(token);
+            res.status(200).json(result);
+        } catch (error: any) {
+            res.status(401).json({ message: error.message });
+        }
+    }
+
+    async logout(req: Request, res: Response): Promise<void> {
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+        res.status(200).json({ message: "Logged out successfully" });
     }
 }
