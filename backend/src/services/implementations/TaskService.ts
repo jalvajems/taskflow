@@ -26,9 +26,12 @@ export class TaskService implements ITaskService {
         return TaskMapper.toResponseDto(task);
     }
 
-    async getTasksByUser(userId: string): Promise<TaskResponseDto[]> {
-        const tasks=await this.taskRepository.findByUserId(userId);
-        return TaskMapper.toResponseDtoArray(tasks)
+    async getTasksByUser(userId: string, filterStatus?: string, page: number = 1, limit: number = 10): Promise<{ tasks: TaskResponseDto[], total: number }> {
+        const { tasks, total } = await this.taskRepository.findPaginatedByUserId(userId, filterStatus, page, limit);
+        return {
+            tasks: TaskMapper.toResponseDtoArray(tasks),
+            total
+        };
     }
 
     async updateTask(id: string, data: Partial<ITask>): Promise<TaskResponseDto | null> {

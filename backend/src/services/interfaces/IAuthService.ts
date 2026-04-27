@@ -7,5 +7,6 @@ export interface IAuthService {
     forgotPassword(email: string): Promise<void>;
     verifyOtp(email: string, otp: string): Promise<boolean>;
     resetPassword(email: string, newPassword: string): Promise<boolean>;
+    resendOtp(email: string, type: 'registration' | 'reset'): Promise<void>;
 
 }

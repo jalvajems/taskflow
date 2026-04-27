@@ -15,7 +15,11 @@ exports.container = container;
 // Bind Repositories
 container.bind(types_1.TYPES.UserRepository).to(UserRepository_1.UserRepository).inSingletonScope();
 container.bind(types_1.TYPES.TaskRepository).to(TaskRepository_1.TaskRepository).inSingletonScope();
-container.bind(types_1.TYPES.AuthService).to(AuthService_1.AuthService).inSingletonScope();
 container.bind(types_1.TYPES.OtpRepository).to(OtpRepository_1.OtpRepository).inSingletonScope();
+// Bind Services
+container.bind(types_1.TYPES.AuthService).to(AuthService_1.AuthService).inSingletonScope();
+const TaskService_1 = require("../services/implementations/TaskService");
+container.bind(types_1.TYPES.TaskService).to(TaskService_1.TaskService).inSingletonScope();
+// Bind Controllers
 container.bind(types_1.TYPES.AuthController).to(AuthController_1.AuthController).inSingletonScope();
 container.bind(types_1.TYPES.TaskController).to(TaskController_1.TaskController).inSingletonScope();

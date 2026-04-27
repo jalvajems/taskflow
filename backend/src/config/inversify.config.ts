@@ -21,8 +21,15 @@ const container = new Container();
 // Bind Repositories
 container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository).inSingletonScope();
 container.bind<ITaskRepository>(TYPES.TaskRepository).to(TaskRepository).inSingletonScope();
-container.bind<IAuthService>(TYPES.AuthService).to(AuthService).inSingletonScope();
 container.bind<IOtpRepository>(TYPES.OtpRepository).to(OtpRepository).inSingletonScope();
+
+// Bind Services
+container.bind<IAuthService>(TYPES.AuthService).to(AuthService).inSingletonScope();
+import { ITaskService } from "../services/interfaces/ITaskService";
+import { TaskService } from "../services/implementations/TaskService";
+container.bind<ITaskService>(TYPES.TaskService).to(TaskService).inSingletonScope();
+
+// Bind Controllers
 container.bind<IAuthController>(TYPES.AuthController).to(AuthController).inSingletonScope();
 container.bind<ITaskController>(TYPES.TaskController).to(TaskController).inSingletonScope();
 
