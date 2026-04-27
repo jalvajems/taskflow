@@ -46,7 +46,7 @@ export class AuthService implements IAuthService {
         return UserMapper.toResponseDto(user!);
     }
 
-    async login(email: string, password: string): Promise<{ user: UserResponseDto; token: string }> {
+    async login(email: string, password: string): Promise<{ user: UserResponseDto; accessToken: string; refreshToken: string }> {
         const user = await this.userRepository.findByEmail(email);
         if (!user) throw new Error("Invalid credentials");
 
@@ -57,13 +57,35 @@ export class AuthService implements IAuthService {
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch) throw new Error("Invalid credentials");
 
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
             { id: user._id }, 
             process.env.JWT_SECRET || "secret", 
-            { expiresIn: '1d' }
+            { expiresIn: '15m' }
+        );
+
+        const refreshToken = jwt.sign(
+            { id: user._id }, 
+            process.env.REFRESH_TOKEN_SECRET || "refresh_secret", 
+            { expiresIn: '7d' }
         );
         
-        return { user:UserMapper.toResponseDto(user), token };
+        return { user: UserMapper.toResponseDto(user), accessToken, refreshToken };
+    }
+
+    async refreshToken(token: string): Promise<{ accessToken: string }> {
+        if (!token) throw new Error("Refresh token missing");
+
+        try {
+            const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET || "refresh_secret") as { id: string };
+            const accessToken = jwt.sign(
+                { id: decoded.id },
+                process.env.JWT_SECRET || "secret",
+                { expiresIn: '15m' }
+            );
+            return { accessToken };
+        } catch (error) {
+            throw new Error("Invalid or expired refresh token");
+        }
     }
 
     async resendOtp(email: string, type: 'registration' | 'reset'): Promise<void> {

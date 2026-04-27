@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import api from '../api';
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
@@ -24,8 +25,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(newToken);
   };
 
-  const logout = () => {
-    setToken(null);
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (err) {
+      console.error('Logout error', err);
+    } finally {
+      setToken(null);
+      localStorage.removeItem('token');
+    }
   };
 
   return (
