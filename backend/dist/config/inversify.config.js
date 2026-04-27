@@ -1,0 +1,21 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.container = void 0;
+require("reflect-metadata");
+const inversify_1 = require("inversify");
+const UserRepository_1 = require("../repositories/implementations/UserRepository");
+const TaskRepository_1 = require("../repositories/implementations/TaskRepository");
+const types_1 = require("../utils/types");
+const AuthService_1 = require("../services/implementations/AuthService");
+const OtpRepository_1 = require("../repositories/implementations/OtpRepository");
+const AuthController_1 = require("../controllers/implementations/AuthController");
+const TaskController_1 = require("../controllers/implementations/TaskController");
+const container = new inversify_1.Container();
+exports.container = container;
+// Bind Repositories
+container.bind(types_1.TYPES.UserRepository).to(UserRepository_1.UserRepository).inSingletonScope();
+container.bind(types_1.TYPES.TaskRepository).to(TaskRepository_1.TaskRepository).inSingletonScope();
+container.bind(types_1.TYPES.AuthService).to(AuthService_1.AuthService).inSingletonScope();
+container.bind(types_1.TYPES.OtpRepository).to(OtpRepository_1.OtpRepository).inSingletonScope();
+container.bind(types_1.TYPES.AuthController).to(AuthController_1.AuthController).inSingletonScope();
+container.bind(types_1.TYPES.TaskController).to(TaskController_1.TaskController).inSingletonScope();
