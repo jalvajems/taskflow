@@ -24,16 +24,35 @@ export class AuthService implements IAuthService {
 
     async register(userData: Partial<IUser>): Promise<UserResponseDto> {
         const existingUser = await this.userRepository.findByEmail(userData.email!);
-        if (existingUser) throw new Error("User already exists");
+        if (existingUser) {
+            if (existingUser.isVerified) {
+                throw new Error("User already exists");
+            } else {
+                // User exists but is not verified, we can update and send new OTP
+                userData.password = await hashPassword(userData.password!);
+                await this.userRepository.update(existingUser._id.toString(), userData as any);
+            }
+        } else {
+            userData.password = await hashPassword(userData.password!);
+            await this.userRepository.create(userData);
+        }
 
-        userData.password = await hashPassword(userData.password!);
-        const user=await this.userRepository.create(userData);
-        return UserMapper.toResponseDto(user)
+        // Generate and send OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        await this.otpRepository.create({ email: userData.email, otp } as any);
+        await sendOtpEmail(userData.email!, otp, 'registration');
+
+        const user = await this.userRepository.findByEmail(userData.email!);
+        return UserMapper.toResponseDto(user!);
     }
 
     async login(email: string, password: string): Promise<{ user: UserResponseDto; token: string }> {
         const user = await this.userRepository.findByEmail(email);
         if (!user) throw new Error("Invalid credentials");
+
+        if (!user.isVerified) {
+            throw new Error("Account not verified. Please check your email for OTP.");
+        }
 
         const isMatch = await comparePassword(password, user.password);
         if (!isMatch) throw new Error("Invalid credentials");
@@ -46,23 +65,36 @@ export class AuthService implements IAuthService {
         
         return { user:UserMapper.toResponseDto(user), token };
     }
+
+    async resendOtp(email: string, type: 'registration' | 'reset'): Promise<void> {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        await this.otpRepository.create({ email, otp } as any);
+        await sendOtpEmail(email, otp, type);
+    }
+
     async forgotPassword(email: string): Promise<void> {
         const user = await this.userRepository.findByEmail(email);
         if (!user) throw new Error("If an account exists with this email, you will receive an OTP.");
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
-        // Store OTP in database
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
         await this.otpRepository.create({ email, otp } as any);
-        // Send Email
-        await sendOtpEmail(email, otp);
+        await sendOtpEmail(email, otp, 'reset');
     }
+
     async verifyOtp(email: string, otp: string): Promise<boolean> {
         const latestOtp = await this.otpRepository.findLatestByEmail(email);
         
         if (!latestOtp || latestOtp.otp !== otp) {
             throw new Error("Invalid or expired OTP");
         }
+
+        // Mark user as verified if it was a registration OTP
+        const user = await this.userRepository.findByEmail(email);
+        if (user && !user.isVerified) {
+            await this.userRepository.update(user._id.toString(), { isVerified: true } as any);
+        }
+
+        await this.otpRepository.deleteByEmail(email);
         return true;
     }
     async resetPassword(email: string, newPassword: string): Promise<boolean> {

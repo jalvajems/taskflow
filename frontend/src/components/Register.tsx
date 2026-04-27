@@ -39,7 +39,7 @@ const Register: React.FC = () => {
 
     try {
       await api.post('/auth/register', { name, email, password });
-      navigate('/login');
+      navigate(`/verify-otp?email=${email}&type=registration`);
     } catch (err: any) {
       if (err.response?.data?.errors?.length > 0) {
         // Backend Zod Validation errors

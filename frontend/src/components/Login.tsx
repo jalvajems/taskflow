@@ -80,6 +80,9 @@ const Login: React.FC = () => {
             <LogIn size={20} /> Login
           </button>
         </form>
+        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+          <Link to="/forgot-password" style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Forgot Password?</Link>
+        </div>
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
           Don't have an account? <Link to="/register">Register</Link>
         </p>

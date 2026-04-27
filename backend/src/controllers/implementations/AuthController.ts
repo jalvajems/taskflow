@@ -57,4 +57,14 @@ export class AuthController implements IAuthController {
             res.status(400).json({ message: error.message });
         }
     }
+
+    async resendOtp(req: Request, res: Response): Promise<void> {
+        try {
+            const { email, type } = req.body;
+            await this.authService.resendOtp(email, type);
+            res.status(200).json({ message: "OTP resent successfully" });
+        } catch (error: any) {
+            res.status(400).json({ message: error.message });
+        }
+    }
 }

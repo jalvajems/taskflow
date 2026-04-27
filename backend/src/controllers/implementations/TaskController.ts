@@ -35,8 +35,13 @@ export class TaskController implements ITaskController {
                 res.status(401).json({ message: "Unauthorized" });
                 return;
             }
-            const tasks = await this.taskService.getTasksByUser(userId);
-            res.status(200).json(tasks);
+
+            const status = req.query.status as string | undefined;
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const result = await this.taskService.getTasksByUser(userId, status, page, limit);
+            res.status(200).json(result);
         } catch (error: any) {
             res.status(400).json({ message: error.message });
         }
