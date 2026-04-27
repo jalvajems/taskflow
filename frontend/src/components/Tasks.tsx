@@ -44,8 +44,8 @@ const Tasks: React.FC = () => {
     fetchTasks();
     let socket: Socket;
     
-    if (token) {
-        socket = io('http://localhost:5000', {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        socket = io(API_URL, {
             auth: { token }
         });
 
