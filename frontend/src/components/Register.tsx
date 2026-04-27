@@ -10,13 +10,33 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const validateForm = () => {
+    if (name.trim().length < 2) return "Name must be at least 2 characters";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Invalid email address";
+    if (password.length < 6) return "Password must be at least 6 characters";
+    return null;
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     try {
       await api.post('/auth/register', { name, email, password });
       navigate('/login');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+      if (err.response?.data?.errors?.length > 0) {
+        // Backend Zod Validation errors
+        setError(err.response.data.errors[0].message);
+      } else {
+        setError(err.response?.data?.message || 'Registration failed');
+      }
     }
   };
 
@@ -24,7 +44,7 @@ const Register: React.FC = () => {
     <div className="flex-center min-h-screen">
       <div className="glass-panel animate-fade-in" style={{ width: '400px' }}>
         <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Create Account</h2>
-        {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+        {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem', textAlign: 'center', backgroundColor: 'rgba(255,0,0,0.1)', padding: '0.5rem', borderRadius: '4px' }}>{error}</div>}
         <form onSubmit={handleRegister}>
           <input 
             type="text" 
