@@ -24,12 +24,13 @@ export class AuthController implements IAuthController {
             const { email, password } = req.body;
             const { user, accessToken, refreshToken } = await this.authService.login(email, password);
             
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            });
+res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: true, 
+    sameSite: 'none', 
+    maxAge: 7 * 24 * 60 * 60 * 1000 
+});
+
 
             res.status(200).json({ user, accessToken });
         } catch (error: any) {
@@ -90,7 +91,7 @@ export class AuthController implements IAuthController {
         res.clearCookie('refreshToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
         });
         res.status(200).json({ message: "Logged out successfully" });
     }
