@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import api from '../api';
+import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
@@ -38,12 +39,17 @@ const Login: React.FC = () => {
       const res = await api.post('/auth/login', { email, password });
       login(res.data.accessToken);
       navigate('/');
-    } catch (err: any) {
-      if (err.response?.data?.errors?.length > 0) {
-        // Backend Zod Validation errors mapped to top level for simplicity, or we can map them to fields
-        setError(err.response.data.errors[0].message);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.data?.errors?.length > 0) {
+          setError(err.response.data.errors[0].message);
+        } else {
+          setError(err.response?.data?.message || 'Login failed');
+        }
+      } else if (err instanceof Error) {
+        setError(err.message);
       } else {
-        setError(err.response?.data?.message || 'Login failed');
+        setError('Login failed');
       }
     }
   };

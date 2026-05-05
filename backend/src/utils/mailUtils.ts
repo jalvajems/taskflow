@@ -4,10 +4,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // You can change this to 'outlook', etc.
+    service: 'gmail', 
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Use an "App Password" if using Gmail
+        pass: process.env.EMAIL_PASS, 
     },
 });
 

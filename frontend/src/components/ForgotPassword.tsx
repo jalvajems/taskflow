@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, ChevronLeft } from 'lucide-react';
 import api from '../api';
+import axios from 'axios';
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -22,8 +23,14 @@ const ForgotPassword: React.FC = () => {
     try {
       await api.post('/auth/forgot-password', { email });
       navigate(`/verify-otp?email=${email}&type=forgot`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Something went wrong');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Something went wrong');
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Something went wrong');
+      }
     } finally {
       setLoading(false);
     }

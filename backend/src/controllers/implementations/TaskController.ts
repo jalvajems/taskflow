@@ -4,6 +4,7 @@ import { TYPES } from '../../utils/types';
 import { ITaskService } from '../../services/interfaces/ITaskService';
 import { ITaskController } from '../interfaces/ITaskController';
 import { AuthRequest } from '../../middleware/authMiddleware';
+import { STATUS_CODE } from '../../constants/StatusCode';
 
 @injectable()
 export class TaskController implements ITaskController {
@@ -16,14 +17,14 @@ export class TaskController implements ITaskController {
             const authReq = req as AuthRequest;
             const userId = authReq.user?.id;
             if (!userId) {
-                res.status(401).json({ message: "Unauthorized" });
+                res.status(STATUS_CODE.UNAUTHORIZED).json({ message: "Unauthorized" });
                 return;
             }
             const taskData = { ...req.body, userId };
             const task = await this.taskService.createTask(taskData);
-            res.status(201).json(task);
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.CREATED).json(task);
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -32,7 +33,7 @@ export class TaskController implements ITaskController {
             const authReq = req as AuthRequest;
             const userId = authReq.user?.id;
             if (!userId) {
-                res.status(401).json({ message: "Unauthorized" });
+                res.status(STATUS_CODE.UNAUTHORIZED).json({ message: "Unauthorized" });
                 return;
             }
 
@@ -41,21 +42,19 @@ export class TaskController implements ITaskController {
             const limit = parseInt(req.query.limit as string) || 10;
 
             const result = await this.taskService.getTasksByUser(userId, status, page, limit);
-            res.status(200).json(result);
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json(result);
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
     async updateTask(req: Request, res: Response): Promise<void> {
         try {
             const id = req.params.id as string;
-            // Additional auth check could be done to ensure this task belongs to userId
-            // but for now we follow simple logic
             const task = await this.taskService.updateTask(id, req.body);
-            res.status(200).json(task);
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json(task);
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -63,9 +62,9 @@ export class TaskController implements ITaskController {
         try {
             const id = req.params.id as string;
             await this.taskService.deleteTask(id);
-            res.status(200).json({ message: "Task deleted successfully" });
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json({ message: "Task deleted successfully" });
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -74,13 +73,13 @@ export class TaskController implements ITaskController {
             const authReq = req as AuthRequest;
             const userId = authReq.user?.id;
             if (!userId) {
-                res.status(401).json({ message: "Unauthorized" });
+                res.status(STATUS_CODE.UNAUTHORIZED).json({ message: "Unauthorized" });
                 return;
             }
             const stats = await this.taskService.getTaskStats(userId);
-            res.status(200).json(stats);
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json(stats);
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 }

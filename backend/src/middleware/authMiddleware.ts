@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-// Extend Express Request interface to include user
 export interface AuthRequest extends Request {
     user?: {
         id: string;
@@ -12,7 +11,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
     const token = req.header('Authorization')?.split(' ')[1];
 
     if (!token) {
-        res.status(401).json({ message: 'No token, authorization denied' });
+        res.status(STATUS_CODE.UNAUTHORIZED).json({ message: 'No token, authorization denied' });
         return;
     }
 
@@ -21,6 +20,6 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
         req.user = { id: decoded.id };
         next();
     } catch (err) {
-        res.status(401).json({ message: 'Token is not valid' });
+        res.status(STATUS_CODE.UNAUTHORIZED).json({ message: 'Token is not valid' });
     }
 };

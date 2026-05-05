@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
 import api from '../api';
+import axios from 'axios';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -40,12 +41,17 @@ const Register: React.FC = () => {
     try {
       await api.post('/auth/register', { name, email, password });
       navigate(`/verify-otp?email=${email}&type=registration`);
-    } catch (err: any) {
-      if (err.response?.data?.errors?.length > 0) {
-        // Backend Zod Validation errors
-        setError(err.response.data.errors[0].message);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.data?.errors?.length > 0) {
+          setError(err.response.data.errors[0].message);
+        } else {
+          setError(err.response?.data?.message || 'Registration failed');
+        }
+      } else if (err instanceof Error) {
+        setError(err.message);
       } else {
-        setError(err.response?.data?.message || 'Registration failed');
+        setError('Registration failed');
       }
     }
   };

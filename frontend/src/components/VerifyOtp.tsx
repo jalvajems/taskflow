@@ -2,13 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ShieldCheck } from 'lucide-react';
 import api from '../api';
+import axios from 'axios';
 
 const VerifyOtp: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const email = query.get('email') || '';
-  const type = query.get('type') || 'registration'; // 'registration' or 'forgot'
+  const type = query.get('type') || 'registration'; 
 
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
@@ -17,7 +18,7 @@ const VerifyOtp: React.FC = () => {
   const [canResend, setCanResend] = useState(false);
 
   useEffect(() => {
-    let interval: any;
+    let interval: ReturnType<typeof setInterval>;
     if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);
@@ -47,8 +48,14 @@ const VerifyOtp: React.FC = () => {
       } else {
         navigate(`/reset-password?email=${email}`);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Verification failed');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Verification failed');
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Verification failed');
+      }
     }
   };
 
@@ -59,8 +66,14 @@ const VerifyOtp: React.FC = () => {
       setCanResend(false);
       setMessage('New OTP sent to your email');
       setError('');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to resend OTP');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Failed to resend OTP');
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to resend OTP');
+      }
     }
   };
 

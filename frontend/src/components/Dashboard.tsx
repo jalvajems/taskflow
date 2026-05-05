@@ -17,7 +17,6 @@ const Dashboard: React.FC = () => {
             auth: { token }
         });
 
-        // Refresh stats when any task operation happens
         socket.on('task_created', () => setStatsTrigger(v => v + 1));
         socket.on('task_updated', () => setStatsTrigger(v => v + 1));
         socket.on('task_deleted', () => setStatsTrigger(v => v + 1));
