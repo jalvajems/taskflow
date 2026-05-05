@@ -8,7 +8,7 @@ const VerifyOtp: React.FC = () => {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const email = query.get('email') || '';
-  const type = query.get('type') || 'registration'; // 'registration' or 'forgot'
+  const type = query.get('type') || 'registration'; 
 
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');

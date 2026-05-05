@@ -3,6 +3,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../utils/types';
 import { IAuthService } from '../../services/interfaces/IAuthService';
 import { IAuthController } from '../interfaces/IAuthController';
+import { STATUS_CODE } from '../../constants/StatusCode';
 
 @injectable()
 export class AuthController implements IAuthController {
@@ -13,9 +14,9 @@ export class AuthController implements IAuthController {
     async register(req: Request, res: Response): Promise<void> {
         try {
             const user = await this.authService.register(req.body);
-            res.status(201).json(user);
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.CREATED).json(user);
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -32,18 +33,18 @@ res.cookie('refreshToken', refreshToken, {
 });
 
 
-            res.status(200).json({ user, accessToken });
-        } catch (error: any) {
-            res.status(401).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json({ user, accessToken });
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.UNAUTHORIZED).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
     async forgotPassword(req: Request, res: Response): Promise<void> {
         try {
             await this.authService.forgotPassword(req.body.email);
-            res.status(200).json({ message: "OTP sent to your email" });
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json({ message: "OTP sent to your email" });
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -51,9 +52,9 @@ res.cookie('refreshToken', refreshToken, {
         try {
             const { email, otp } = req.body;
             await this.authService.verifyOtp(email, otp);
-            res.status(200).json({ message: "OTP verified successfully" });
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json({ message: "OTP verified successfully" });
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -61,9 +62,9 @@ res.cookie('refreshToken', refreshToken, {
         try {
             const { email, newPassword } = req.body;
             await this.authService.resetPassword(email, newPassword);
-            res.status(200).json({ message: "Password reset successful" });
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json({ message: "Password reset successful" });
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -71,9 +72,9 @@ res.cookie('refreshToken', refreshToken, {
         try {
             const { email, type } = req.body;
             await this.authService.resendOtp(email, type);
-            res.status(200).json({ message: "OTP resent successfully" });
-        } catch (error: any) {
-            res.status(400).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json({ message: "OTP resent successfully" });
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.BAD_REQUEST).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -81,9 +82,9 @@ res.cookie('refreshToken', refreshToken, {
         try {
             const token = req.cookies.refreshToken;
             const result = await this.authService.refreshToken(token);
-            res.status(200).json(result);
-        } catch (error: any) {
-            res.status(401).json({ message: error.message });
+            res.status(STATUS_CODE.SUCCESS).json(result);
+        } catch (error: unknown) {
+            res.status(STATUS_CODE.UNAUTHORIZED).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
         }
     }
 
@@ -93,6 +94,6 @@ res.cookie('refreshToken', refreshToken, {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'none',
         });
-        res.status(200).json({ message: "Logged out successfully" });
+        res.status(STATUS_CODE.SUCCESS).json({ message: "Logged out successfully" });
     }
 }

@@ -40,7 +40,6 @@ const Login: React.FC = () => {
       navigate('/');
     } catch (err: any) {
       if (err.response?.data?.errors?.length > 0) {
-        // Backend Zod Validation errors mapped to top level for simplicity, or we can map them to fields
         setError(err.response.data.errors[0].message);
       } else {
         setError(err.response?.data?.message || 'Login failed');

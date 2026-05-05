@@ -39,6 +39,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 import jwt from 'jsonwebtoken';
+import { STATUS_CODE } from './constants/StatusCode';
 
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token || socket.handshake.query?.token;
@@ -65,14 +66,12 @@ io.on('connection',(socket)=>{
 });
 
 app.get('/health',(req:Request,res:Response)=>{
-    res.status(200).json({status:'OK',message:'taskflow api is running'});
+    res.status(STATUS_CODE.SUCCESS).json({status:'OK',message:'taskflow api is running'});
 });
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
-// Error Handling Middleware
 app.use(notFound);
 app.use(errorHandler);
 

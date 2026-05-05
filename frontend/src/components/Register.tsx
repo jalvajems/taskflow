@@ -42,7 +42,6 @@ const Register: React.FC = () => {
       navigate(`/verify-otp?email=${email}&type=registration`);
     } catch (err: any) {
       if (err.response?.data?.errors?.length > 0) {
-        // Backend Zod Validation errors
         setError(err.response.data.errors[0].message);
       } else {
         setError(err.response?.data?.message || 'Registration failed');

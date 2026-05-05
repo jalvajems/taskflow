@@ -6,7 +6,7 @@ import { injectable, unmanaged } from 'inversify';
 export abstract class BaseRepository<T extends Document> implements IBaseRepository<T> {
     protected model: Model<T>;
 
-    constructor(@unmanaged() model: Model<T>) { // Use @unmanaged() for parameters passed via super()
+    constructor(@unmanaged() model: Model<T>) { 
         this.model = model;
     }
 

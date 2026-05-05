@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 import { TYPES } from '../../utils/types';
 import { ITaskRepository } from '../../repositories/interfaces/ITaskRepository';
 import { ITaskService } from '../interfaces/ITaskService';
-import { io } from '../../server'; // Import the socket instance
+import { io } from '../../server';
 import { ITask } from '../../interfaces/ITask';
 import { TaskResponseDto } from '../../dtos/TaskResponseDto';
 import { TaskMapper } from '../../mappers/TaskMapper';
@@ -20,7 +20,6 @@ export class TaskService implements ITaskService {
     async createTask(data: Partial<ITask>): Promise<TaskResponseDto> {
         const task = await this.taskRepository.create(data);
         
-        // Real-time update
         io.to(data.userId!.toString()).emit('task_created', task);
         
         return TaskMapper.toResponseDto(task);

@@ -15,7 +15,7 @@ export class AuthService implements IAuthService {
 
     constructor(
         @inject(TYPES.UserRepository) private userRepository: IUserRepository,
-        @inject(TYPES.OtpRepository) private otpRepository: IOtpRepository // Inject it
+        @inject(TYPES.OtpRepository) private otpRepository: IOtpRepository 
 
     ) {
         this.userRepository = userRepository;
@@ -28,18 +28,16 @@ export class AuthService implements IAuthService {
             if (existingUser.isVerified) {
                 throw new Error("User already exists");
             } else {
-                // User exists but is not verified, we can update and send new OTP
                 userData.password = await hashPassword(userData.password!);
-                await this.userRepository.update(existingUser._id.toString(), userData as any);
+                await this.userRepository.update(existingUser._id.toString(), userData);
             }
         } else {
             userData.password = await hashPassword(userData.password!);
             await this.userRepository.create(userData);
         }
 
-        // Generate and send OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        await this.otpRepository.create({ email: userData.email, otp } as any);
+        await this.otpRepository.create({ email: userData.email, otp });
         await sendOtpEmail(userData.email!, otp, 'registration');
 
         const user = await this.userRepository.findByEmail(userData.email!);
@@ -90,7 +88,7 @@ export class AuthService implements IAuthService {
 
     async resendOtp(email: string, type: 'registration' | 'reset'): Promise<void> {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        await this.otpRepository.create({ email, otp } as any);
+        await this.otpRepository.create({ email, otp });
         await sendOtpEmail(email, otp, type);
     }
 
@@ -99,7 +97,7 @@ export class AuthService implements IAuthService {
         if (!user) throw new Error("If an account exists with this email, you will receive an OTP.");
         
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        await this.otpRepository.create({ email, otp } as any);
+        await this.otpRepository.create({ email, otp });
         await sendOtpEmail(email, otp, 'reset');
     }
 
@@ -110,10 +108,9 @@ export class AuthService implements IAuthService {
             throw new Error("Invalid or expired OTP");
         }
 
-        // Mark user as verified if it was a registration OTP
         const user = await this.userRepository.findByEmail(email);
         if (user && !user.isVerified) {
-            await this.userRepository.update(user._id.toString(), { isVerified: true } as any);
+            await this.userRepository.update(user._id.toString(), { isVerified: true });
         }
 
         await this.otpRepository.deleteByEmail(email);
@@ -122,14 +119,11 @@ export class AuthService implements IAuthService {
     async resetPassword(email: string, newPassword: string): Promise<boolean> {
         const user = await this.userRepository.findByEmail(email);
         if (!user) throw new Error("User not found");
-        // Hash new password
         const hashedPassword = await hashPassword(newPassword);
         
-        // Update user
-        const updatedUser = await this.userRepository.update(user._id.toString(), { password: hashedPassword } as any);
+        const updatedUser = await this.userRepository.update(user._id.toString(), { password: hashedPassword });
         
         if (updatedUser) {
-            // Delete the OTP after successful reset
             await this.otpRepository.deleteByEmail(email);
             return true;
         }

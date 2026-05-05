@@ -15,6 +15,7 @@ const db_1 = __importDefault(require("./config/db"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const taskRoutes_1 = __importDefault(require("./routes/taskRoutes"));
 const errorMiddleware_1 = require("./middleware/errorMiddleware");
+const { STATUS_CODES } = require("http");
 dotenv_1.default.config();
 (0, db_1.default)();
 const app = (0, express_1.default)();
@@ -55,7 +56,7 @@ io.on('connection', (socket) => {
     });
 });
 app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'OK', message: 'taskflow api is running' });
+    res.status().json({ status: 'OK', message: 'taskflow api is running' });
 });
 // Routes
 app.use('/api/auth', authRoutes_1.default);
