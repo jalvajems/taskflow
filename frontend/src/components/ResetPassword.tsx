@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { KeyRound } from 'lucide-react';
 import api from '../api';
+import axios from 'axios';
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -33,8 +34,14 @@ const ResetPassword: React.FC = () => {
       await api.post('/auth/reset-password', { email, newPassword });
       alert('Password reset successful! Please login with your new password.');
       navigate('/login');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to reset password');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Failed to reset password');
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to reset password');
+      }
     } finally {
       setLoading(false);
     }
