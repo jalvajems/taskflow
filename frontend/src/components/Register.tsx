@@ -27,6 +27,8 @@ const Register: React.FC = () => {
     return Object.keys(errors).length > 0 ? errors : null;
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -38,6 +40,7 @@ const Register: React.FC = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
       await api.post('/auth/register', { name, email, password });
       navigate(`/verify-otp?email=${email}&type=registration`);
@@ -53,6 +56,8 @@ const Register: React.FC = () => {
       } else {
         setError('Registration failed');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -95,8 +100,17 @@ const Register: React.FC = () => {
             {fieldErrors.password && <div style={{ color: 'var(--danger)', fontSize: '0.85rem', marginLeft: '2px' }}>{fieldErrors.password}</div>}
           </div>
 
-          <button type="submit" className="btn btn-primary">
-            <UserPlus size={20} /> Register
+          <button type="submit" className="btn btn-primary" disabled={isLoading}>
+            {isLoading ? (
+              <span className="flex-center" style={{ gap: '0.5rem' }}>
+                <span className="spinner" style={{ width: '20px', height: '20px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
+                Registering...
+              </span>
+            ) : (
+              <>
+                <UserPlus size={20} /> Register
+              </>
+            )}
           </button>
         </form>
         <p style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)' }}>
