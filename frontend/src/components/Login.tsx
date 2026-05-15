@@ -38,7 +38,6 @@ const Login: React.FC = () => {
     try {
       const res = await api.post('/auth/login', { email, password });
       login(res.data.accessToken);
-      navigate('/');
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         if (err.response?.data?.errors?.length > 0) {
