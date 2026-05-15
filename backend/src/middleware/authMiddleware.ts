@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { STATUS_CODE } from '../constants/StatusCode';
 
 export interface AuthRequest extends Request {
     user?: {
