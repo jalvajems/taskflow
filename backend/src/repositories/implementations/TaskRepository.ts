@@ -3,7 +3,7 @@ import { ITaskRepository } from '../interfaces/ITaskRepository';
 import Task from '../../models/Task';
 import { ITask } from '../../interfaces/ITask';
 import { injectable } from 'inversify';
-import { FilterQuery } from 'mongoose';
+import {QueryFilter} from 'mongoose'
 
 @injectable()
 export class TaskRepository extends BaseRepository<ITask> implements ITaskRepository {
@@ -16,7 +16,7 @@ export class TaskRepository extends BaseRepository<ITask> implements ITaskReposi
     }
 
     async findPaginatedByUserId(userId: string, filterStatus?: string, page: number = 1, limit: number = 10): Promise<{ tasks: ITask[], total: number }> {
-        const query: FilterQuery<ITask> = { userId };
+        const query: QueryFilter<ITask> = { userId };
         if (filterStatus && filterStatus !== 'All') {
             query.status = filterStatus;
         }
