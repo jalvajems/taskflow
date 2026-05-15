@@ -38,7 +38,7 @@ export class AuthService implements IAuthService {
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         await this.otpRepository.create({ email: userData.email, otp });
-        await sendOtpEmail(userData.email!, otp, 'registration');
+        sendOtpEmail(userData.email!, otp, 'registration').catch(err => console.error("Background email send failed", err));
 
         const user = await this.userRepository.findByEmail(userData.email!);
         return UserMapper.toResponseDto(user!);
@@ -89,7 +89,7 @@ export class AuthService implements IAuthService {
     async resendOtp(email: string, type: 'registration' | 'reset'): Promise<void> {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         await this.otpRepository.create({ email, otp });
-        await sendOtpEmail(email, otp, type);
+        sendOtpEmail(email, otp, type).catch(err => console.error("Background email send failed", err));
     }
 
     async forgotPassword(email: string): Promise<void> {
@@ -98,7 +98,7 @@ export class AuthService implements IAuthService {
         
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         await this.otpRepository.create({ email, otp });
-        await sendOtpEmail(email, otp, 'reset');
+        sendOtpEmail(email, otp, 'reset').catch(err => console.error("Background email send failed", err));
     }
 
     async verifyOtp(email: string, otp: string): Promise<boolean> {
